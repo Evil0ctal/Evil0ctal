@@ -24,8 +24,6 @@
 
 - 🎬 My bilibili [Evil0ctal](https://space.bilibili.com/12505756)
 
-- 🔬 I’m currently working at [Calibear Cyber Cafe](https://calibearcybercafe.com/)
-
 - 🕹 Play game with me :  [Steam](https://steamcommunity.com/id/Evil0ctal)
 
 - 💻 Contact me : [Telegram](https://t.me/Evil_Geek)
