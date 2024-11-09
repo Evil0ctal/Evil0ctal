@@ -20,7 +20,7 @@ jobs:
             images/github-snake-dark.svg?palette=github-dark
             images/ocean.gif?color_snake=orange&color_dots=#bfd6f6,#8dbdff,#64a1f4,#4b91f1,#3c7dd9
       - name: Upload Snake Animation
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v3
         with:
           name: snake-animations
           path: images
