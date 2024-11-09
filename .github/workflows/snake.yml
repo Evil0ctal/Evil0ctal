@@ -19,8 +19,14 @@ jobs:
             images/github-contribution-grid-snake.svg
             images/github-snake-dark.svg?palette=github-dark
             images/ocean.gif?color_snake=orange&color_dots=#bfd6f6,#8dbdff,#64a1f4,#4b91f1,#3c7dd9
-      - name: Upload Snake Animation
-        uses: actions/upload-artifact@v3
-        with:
-          name: snake-animations
-          path: images
+      
+      # Commit and push generated files
+      - name: Commit and push generated files
+        run: |
+          git config --local user.name "github-actions[bot]"
+          git config --local user.email "github-actions[bot]@users.noreply.github.com"
+          git add images/github-contribution-grid-snake.svg images/github-snake-dark.svg images/ocean.gif
+          git commit -m "Update GitHub contribution snake animation"
+          git push
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
