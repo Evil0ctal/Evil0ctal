@@ -430,6 +430,13 @@ def test_stuck_repo_list_cursor_still_persists_already_completed_repos(tmp_path)
     assert cache_after["u/r"]["deletions"] == 2
 
 
+def test_repo_query_excludes_private_repos():
+    """C1: without a privacy filter, a broadly-scoped token pulls private
+    repos into the committed cache/loc.json, which is destined for a public
+    repository."""
+    assert "privacy: PUBLIC" in REPO_QUERY
+
+
 def test_stuck_history_cursor_still_persists_already_completed_repos(tmp_path):
     """B5, same guarantee for the history-pagination guard: a repo fully
     walked earlier in the run must survive a LocError raised while walking

@@ -96,7 +96,7 @@ def render_info(profile, languages, loc, x: float, y: float, now) -> str:
         ("OS", config.OS_LINE, config.ACCENT),
         ("Shell", config.SHELL_LINE, config.ACCENT),
         ("Uptime", uptime(profile.created_at, now), config.ACCENT),
-        ("Repos", f"{profile.repos:,} public", config.KEY_COLOR),
+        ("Repos", f"{profile.repos:,} {config.REPO_COUNT_SUFFIX}", config.KEY_COLOR),
         ("Stars", f"{profile.stars:,}", config.STAR_COLOR),
         ("Forks", f"{profile.forks:,}", config.KEY_COLOR),
         ("Followers", f"{profile.followers:,}", config.KEY_COLOR),

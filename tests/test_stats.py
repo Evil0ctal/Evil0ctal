@@ -1,6 +1,6 @@
 from datetime import datetime, timezone
 
-from generator.stats import Language, fetch_languages, fetch_profile, uptime
+from generator.stats import LANGUAGE_QUERY, PROFILE_QUERY, Language, fetch_languages, fetch_profile, uptime
 
 
 class FakeClient:
@@ -88,3 +88,15 @@ def test_language_without_colour_falls_back_to_dim():
 def test_no_languages_returns_empty_list():
     payload = {"user": {"repositories": {"nodes": []}}}
     assert fetch_languages(FakeClient(payload), "someone") == []
+
+
+# --- Fix round 1 coverage (C1: private-repo leak) ---
+
+def test_profile_query_excludes_private_repos():
+    """C1: without a privacy filter, a broadly-scoped token pulls private
+    repos into the public card's repo/star/fork counts."""
+    assert "privacy: PUBLIC" in PROFILE_QUERY
+
+
+def test_language_query_excludes_private_repos():
+    assert "privacy: PUBLIC" in LANGUAGE_QUERY

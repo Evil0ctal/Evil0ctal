@@ -43,6 +43,7 @@ SITES = [("reer.dev", "https://reer.dev/"), ("gods.dev", "https://gods.dev/")]
 EMAIL = "Evil0ctal1985@gmail.com"
 TOP_LANGUAGES = 5
 LANG_BAR_CELLS = 10
+REPO_COUNT_SUFFIX = "sources"  # GitHub's own term for non-fork repos
 
 # --- info panel layout ---
 INFO_SEPARATOR_WIDTH = 46   # dash count for the "─"*N separator rules

@@ -51,7 +51,7 @@ class LocError(RuntimeError):
 REPO_QUERY = """
 query($login: String!, $cursor: String) {
   user(login: $login) {
-    repositories(first: 50, after: $cursor, ownerAffiliations: OWNER, isFork: false) {
+    repositories(first: 50, after: $cursor, ownerAffiliations: OWNER, isFork: false, privacy: PUBLIC) {
       pageInfo { hasNextPage endCursor }
       nodes {
         nameWithOwner

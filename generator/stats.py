@@ -10,7 +10,7 @@ query($login: String!) {
   user(login: $login) {
     createdAt
     followers { totalCount }
-    repositories(first: 100, ownerAffiliations: OWNER, isFork: false) {
+    repositories(first: 100, ownerAffiliations: OWNER, isFork: false, privacy: PUBLIC) {
       totalCount
       nodes { stargazerCount forkCount }
     }
@@ -22,7 +22,7 @@ query($login: String!) {
 LANGUAGE_QUERY = """
 query($login: String!) {
   user(login: $login) {
-    repositories(first: 100, ownerAffiliations: OWNER, isFork: false) {
+    repositories(first: 100, ownerAffiliations: OWNER, isFork: false, privacy: PUBLIC) {
       nodes { languages(first: 10) { edges { size node { name color } } } }
     }
   }

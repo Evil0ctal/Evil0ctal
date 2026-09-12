@@ -1,0 +1,560 @@
+{
+ "Evil0ctal/AI-Based-Social-Engineering-Attacks": {
+  "additions": 243,
+  "deletions": 2,
+  "head": "ea9679e9d306742fe6a67e5abfc9f6bd08b96618",
+  "last_date": "2023-03-27T23:09:59Z",
+  "oids": [
+   "ea9679e9d306742fe6a67e5abfc9f6bd08b96618"
+  ]
+ },
+ "Evil0ctal/AIGC-Startup": {
+  "additions": 213,
+  "deletions": 1,
+  "head": "48a6df5d7aed99bb9e8c4c3e5ea46d1c87555e04",
+  "last_date": "2023-03-29T23:21:29Z",
+  "oids": [
+   "48a6df5d7aed99bb9e8c4c3e5ea46d1c87555e04"
+  ]
+ },
+ "Evil0ctal/AIO-Downloader": {
+  "additions": 332,
+  "deletions": 0,
+  "head": "a73e68c0e148ae540c04cc7afbf6579f3a109a15",
+  "last_date": "2023-02-24T10:46:04Z",
+  "oids": [
+   "a73e68c0e148ae540c04cc7afbf6579f3a109a15"
+  ]
+ },
+ "Evil0ctal/AndroidReverse101": {
+  "additions": 17029,
+  "deletions": 66,
+  "head": "9b72d20439155893ab2ce1b8af56af41c17d0411",
+  "last_date": "2025-12-31T09:22:43Z",
+  "oids": [
+   "9b72d20439155893ab2ce1b8af56af41c17d0411"
+  ]
+ },
+ "Evil0ctal/Apifox-Supply-Chain-Poisoning-Attack": {
+  "additions": 2327,
+  "deletions": 4,
+  "head": "ab5a51d0224e11fa48147d3ab17a5762290fff1c",
+  "last_date": "2026-03-27T08:21:30Z",
+  "oids": [
+   "ab5a51d0224e11fa48147d3ab17a5762290fff1c"
+  ]
+ },
+ "Evil0ctal/Binary-Maze-CTF-Challenge": {
+  "additions": 725,
+  "deletions": 213,
+  "head": "1bf26c5956fb6f15d0984968f0ce2573fced5bcd",
+  "last_date": "2024-12-06T09:21:24Z",
+  "oids": [
+   "1bf26c5956fb6f15d0984968f0ce2573fced5bcd"
+  ]
+ },
+ "Evil0ctal/Bionic_requests": {
+  "additions": 224,
+  "deletions": 11,
+  "head": "99653ff4124f1cc426967c20bbe5ff7298300899",
+  "last_date": "2021-11-02T22:32:10Z",
+  "oids": [
+   "99653ff4124f1cc426967c20bbe5ff7298300899"
+  ]
+ },
+ "Evil0ctal/CalibearCyberCafe_User_Tool": {
+  "additions": 676,
+  "deletions": 214,
+  "head": "ba212dfac9fbb82ec34c6f651ffd6eb5502db7a6",
+  "last_date": "2022-12-11T09:14:06Z",
+  "oids": [
+   "ba212dfac9fbb82ec34c6f651ffd6eb5502db7a6"
+  ]
+ },
+ "Evil0ctal/Calibear_User": {
+  "additions": 544,
+  "deletions": 78,
+  "head": "78d538c4540a3a9fd72462e03b3e1ba737f6e943",
+  "last_date": "2022-09-27T05:58:36Z",
+  "oids": [
+   "78d538c4540a3a9fd72462e03b3e1ba737f6e943"
+  ]
+ },
+ "Evil0ctal/Careers_Calibear": {
+  "additions": 337,
+  "deletions": 0,
+  "head": "6cd6bfd2671993de5de20cfc3869c2dce055b73a",
+  "last_date": "2023-10-27T06:01:11Z",
+  "oids": [
+   "6cd6bfd2671993de5de20cfc3869c2dce055b73a"
+  ]
+ },
+ "Evil0ctal/Crazy-Complex-YAML-File": {
+  "additions": 465,
+  "deletions": 1,
+  "head": "a2ab211d49342c9bd1a8b4a51ceca18b7763c6bb",
+  "last_date": "2024-09-21T07:22:28Z",
+  "oids": [
+   "a2ab211d49342c9bd1a8b4a51ceca18b7763c6bb"
+  ]
+ },
+ "Evil0ctal/CrossFire_West_Scripts": {
+  "additions": 554,
+  "deletions": 56,
+  "head": "8de54271030f79632df64e722bb05f13fba7f7f7",
+  "last_date": "2022-08-18T20:50:46Z",
+  "oids": [
+   "8de54271030f79632df64e722bb05f13fba7f7f7"
+  ]
+ },
+ "Evil0ctal/Dell-Fan-Control": {
+  "additions": 1043,
+  "deletions": 0,
+  "head": "147cb69deaf54f366119fd76d8a189aee8a6a40a",
+  "last_date": "2025-12-29T18:41:44Z",
+  "oids": [
+   "147cb69deaf54f366119fd76d8a189aee8a6a40a"
+  ]
+ },
+ "Evil0ctal/Douyin-TikTok-Video-ID-Decoder": {
+  "additions": 3788,
+  "deletions": 98,
+  "head": "b9eae111e9acf3abd5317acd0001bdaff89a4e39",
+  "last_date": "2025-10-18T12:54:15Z",
+  "oids": [
+   "b9eae111e9acf3abd5317acd0001bdaff89a4e39"
+  ]
+ },
+ "Evil0ctal/Douyin_TikTok_Download_API": {
+  "additions": 190856,
+  "deletions": 9213,
+  "head": "3fa19d9aeb5326df3ade80a7ce75f62f7a154dfb",
+  "last_date": "2026-09-11T09:56:22Z",
+  "oids": [
+   "3fa19d9aeb5326df3ade80a7ce75f62f7a154dfb"
+  ]
+ },
+ "Evil0ctal/Douyin_TikTok_ToolBox": {
+  "additions": 332,
+  "deletions": 0,
+  "head": "71fa575c4f3c34100c89345b41de49dad65a50cd",
+  "last_date": "2022-11-27T23:09:32Z",
+  "oids": [
+   "71fa575c4f3c34100c89345b41de49dad65a50cd"
+  ]
+ },
+ "Evil0ctal/Douyin_Tiktok_Scraper_PyPi": {
+  "additions": 3047,
+  "deletions": 1532,
+  "head": "2ba54b31d8589dd06345d82ae5cb81418b00067b",
+  "last_date": "2023-09-01T09:01:36Z",
+  "oids": [
+   "2ba54b31d8589dd06345d82ae5cb81418b00067b"
+  ]
+ },
+ "Evil0ctal/Everything-You-Need-iOS-Jailbreak-Guide": {
+  "additions": 102,
+  "deletions": 0,
+  "head": "eccd330e24c96ccd5cbddcee80607639f4b93679",
+  "last_date": "2024-01-20T00:19:35Z",
+  "oids": [
+   "eccd330e24c96ccd5cbddcee80607639f4b93679"
+  ]
+ },
+ "Evil0ctal/Evil-Lang": {
+  "additions": 24426,
+  "deletions": 3852,
+  "head": "41314420c18c7e83f2ce082199e4bf1fb8610ead",
+  "last_date": "2025-05-29T15:59:24Z",
+  "oids": [
+   "41314420c18c7e83f2ce082199e4bf1fb8610ead"
+  ]
+ },
+ "Evil0ctal/Evil-XSS-Hacker-Arts": {
+  "additions": 4,
+  "deletions": 0,
+  "head": "a23a2e29521e002332a4e73c2c2b53e71b649ae8",
+  "last_date": "2023-08-13T10:21:59Z",
+  "oids": [
+   "a23a2e29521e002332a4e73c2c2b53e71b649ae8"
+  ]
+ },
+ "Evil0ctal/Evil0ctal": {
+  "additions": 196,
+  "deletions": 50,
+  "head": "4ff0940d4a6fee574748385ea8edb36797694604",
+  "last_date": "2024-11-24T04:49:30Z",
+  "oids": [
+   "4d51e1b7dfbae40f8617d9c8f7fa2d3c53babe2c"
+  ]
+ },
+ "Evil0ctal/EvilStore": {
+  "additions": 6243,
+  "deletions": 184,
+  "head": "14ed07e33476e86af5b5da77264f0aa86eceeee7",
+  "last_date": "2026-05-06T03:41:16Z",
+  "oids": [
+   "14ed07e33476e86af5b5da77264f0aa86eceeee7"
+  ]
+ },
+ "Evil0ctal/Fast-Powerful-Whisper-AI-Services-API": {
+  "additions": 17548,
+  "deletions": 6064,
+  "head": "e8e0315e2077ec5bff48a6ed456e41deffe2cc3f",
+  "last_date": "2025-06-17T22:48:07Z",
+  "oids": [
+   "e8e0315e2077ec5bff48a6ed456e41deffe2cc3f"
+  ]
+ },
+ "Evil0ctal/FastAPI-JWT-Auth": {
+  "additions": 9834,
+  "deletions": 166,
+  "head": "99b88c9cf4f94dff7ec5cfab238662950646ed39",
+  "last_date": "2025-05-30T03:10:05Z",
+  "oids": [
+   "99b88c9cf4f94dff7ec5cfab238662950646ed39"
+  ]
+ },
+ "Evil0ctal/Flappy-Bird-Flutter": {
+  "additions": 11738,
+  "deletions": 122,
+  "head": "a7c55ec9927d202ed099e705f719ca23b0fe180d",
+  "last_date": "2025-05-28T06:29:50Z",
+  "oids": [
+   "a7c55ec9927d202ed099e705f719ca23b0fe180d"
+  ]
+ },
+ "Evil0ctal/FlappyBird": {
+  "additions": 1862,
+  "deletions": 10,
+  "head": "cbb29e38eceb5785890feb6ecf19235677c87414",
+  "last_date": "2025-05-26T12:16:33Z",
+  "oids": [
+   "cbb29e38eceb5785890feb6ecf19235677c87414"
+  ]
+ },
+ "Evil0ctal/Frp_Web_GUI": {
+  "additions": 363,
+  "deletions": 0,
+  "head": "0bd9de7868cdef82f41e1bd11a476af805c9a1e1",
+  "last_date": "2023-07-22T22:51:24Z",
+  "oids": [
+   "0bd9de7868cdef82f41e1bd11a476af805c9a1e1"
+  ]
+ },
+ "Evil0ctal/GTA-San-Andreas-iOS-Android-Save-Editor": {
+  "additions": 230,
+  "deletions": 0,
+  "head": "af629fa95e3663f63f9170ec14d82a3250ee0f5b",
+  "last_date": "2025-10-31T08:20:29Z",
+  "oids": [
+   "af629fa95e3663f63f9170ec14d82a3250ee0f5b"
+  ]
+ },
+ "Evil0ctal/Github_APP_BUG": {
+  "additions": 51,
+  "deletions": 0,
+  "head": "93fe3f3b9dadd21df572366398de688c7be122bf",
+  "last_date": "2022-11-27T22:09:55Z",
+  "oids": [
+   "93fe3f3b9dadd21df572366398de688c7be122bf"
+  ]
+ },
+ "Evil0ctal/Gods.dev": {
+  "additions": 44609,
+  "deletions": 8655,
+  "head": "b3fd149b39d5bb0fdde00f408e2dc37beb165341",
+  "last_date": "2026-08-01T21:48:12Z",
+  "oids": [
+   "b3fd149b39d5bb0fdde00f408e2dc37beb165341"
+  ]
+ },
+ "Evil0ctal/JS_Draft": {
+  "additions": 107,
+  "deletions": 0,
+  "head": "a37068bf7abd564e3051b7df7de7412658145f9c",
+  "last_date": "2023-08-07T12:59:53Z",
+  "oids": [
+   "a37068bf7abd564e3051b7df7de7412658145f9c"
+  ]
+ },
+ "Evil0ctal/JiMu-APP-Client": {
+  "additions": 31463,
+  "deletions": 13725,
+  "head": "7e5fa272f2c34de1b01b32a69526b7a4e78fab27",
+  "last_date": "2023-08-12T02:34:46Z",
+  "oids": [
+   "7e5fa272f2c34de1b01b32a69526b7a4e78fab27"
+  ]
+ },
+ "Evil0ctal/Kanxue-CTF-Challenge": {
+  "additions": 809,
+  "deletions": 96,
+  "head": "c0d602a4d1d905a467b78e5ecb1ed7596aa28e66",
+  "last_date": "2024-07-11T05:50:00Z",
+  "oids": [
+   "c0d602a4d1d905a467b78e5ecb1ed7596aa28e66"
+  ]
+ },
+ "Evil0ctal/Learn_Python": {
+  "additions": 742,
+  "deletions": 104,
+  "head": "770d4d0ea6d3a8f256d2312c75771f495be7cb83",
+  "last_date": "2022-12-17T02:41:20Z",
+  "oids": [
+   "770d4d0ea6d3a8f256d2312c75771f495be7cb83"
+  ]
+ },
+ "Evil0ctal/MacOS-System-Diagnostic-Report-Tool": {
+  "additions": 369,
+  "deletions": 0,
+  "head": "d698834369d849f295661910097d1b74c9e8b072",
+  "last_date": "2025-06-07T23:45:09Z",
+  "oids": [
+   "d698834369d849f295661910097d1b74c9e8b072"
+  ]
+ },
+ "Evil0ctal/Mail_sender": {
+  "additions": 198,
+  "deletions": 0,
+  "head": "bf0c2f196f2a80a24431df533c7713776d642688",
+  "last_date": "2021-12-24T06:39:55Z",
+  "oids": [
+   "bf0c2f196f2a80a24431df533c7713776d642688"
+  ]
+ },
+ "Evil0ctal/Minecraft-Java-Server-Operating-Guide": {
+  "additions": 420,
+  "deletions": 48,
+  "head": "bd7f860dece9051b5cb82f316fe6eb3758331c02",
+  "last_date": "2024-02-06T13:40:22Z",
+  "oids": [
+   "bd7f860dece9051b5cb82f316fe6eb3758331c02"
+  ]
+ },
+ "Evil0ctal/Minecraft-Plugin-AI-Translater": {
+  "additions": 3627,
+  "deletions": 711,
+  "head": "fda5e74947005e0213dd46e2a8c2916f343abcce",
+  "last_date": "2024-08-20T19:51:43Z",
+  "oids": [
+   "fda5e74947005e0213dd46e2a8c2916f343abcce"
+  ]
+ },
+ "Evil0ctal/Minecraft-Server-Command-Inspector": {
+  "additions": 430,
+  "deletions": 36,
+  "head": "47b42e0ce15726ad444cd85c4d985f6a4fc767de",
+  "last_date": "2024-02-17T13:21:37Z",
+  "oids": [
+   "47b42e0ce15726ad444cd85c4d985f6a4fc767de"
+  ]
+ },
+ "Evil0ctal/OpenAPI-For-LLM": {
+  "additions": 446,
+  "deletions": 2,
+  "head": "d52c6aa649b7e4f15b82c3226cc2b4fd633bbbae",
+  "last_date": "2025-06-10T05:51:25Z",
+  "oids": [
+   "d52c6aa649b7e4f15b82c3226cc2b4fd633bbbae"
+  ]
+ },
+ "Evil0ctal/P2P_Proxy_Pool": {
+  "additions": 332,
+  "deletions": 0,
+  "head": "68b3a09ef3502b7222346944f88670155f3c7e15",
+  "last_date": "2022-12-22T11:21:13Z",
+  "oids": [
+   "68b3a09ef3502b7222346944f88670155f3c7e15"
+  ]
+ },
+ "Evil0ctal/PromptCraft": {
+  "additions": 196,
+  "deletions": 0,
+  "head": "8d3e232118645dbe5d4141dc8ddf1efa8dfbff74",
+  "last_date": "2025-04-15T05:41:37Z",
+  "oids": [
+   "8d3e232118645dbe5d4141dc8ddf1efa8dfbff74"
+  ]
+ },
+ "Evil0ctal/Reverse-Engineering-Online-Toolkit": {
+  "additions": 110828,
+  "deletions": 9589,
+  "head": "fda3f73de5689223d38dd13b1a72b2f2ab648ad7",
+  "last_date": "2026-03-03T00:30:02Z",
+  "oids": [
+   "fda3f73de5689223d38dd13b1a72b2f2ab648ad7"
+  ]
+ },
+ "Evil0ctal/SSHRD_Script_A9X": {
+  "additions": 12109,
+  "deletions": 1,
+  "head": "b8e64850f36d6dfd9c40c52a130169f4490b52b8",
+  "last_date": "2026-07-19T17:37:37Z",
+  "oids": [
+   "b8e64850f36d6dfd9c40c52a130169f4490b52b8"
+  ]
+ },
+ "Evil0ctal/School_homework": {
+  "additions": 184,
+  "deletions": 0,
+  "head": "75c20a481d2a7e3199aaa9c2f8b5d5aaea437e85",
+  "last_date": "2021-10-28T23:46:05Z",
+  "oids": [
+   "75c20a481d2a7e3199aaa9c2f8b5d5aaea437e85"
+  ]
+ },
+ "Evil0ctal/SciFiMusicGenerator": {
+  "additions": 185,
+  "deletions": 0,
+  "head": "b3ce8f48ad2392df3eb849a89f90fa4feb6ac888",
+  "last_date": "2024-11-15T01:58:22Z",
+  "oids": [
+   "b3ce8f48ad2392df3eb849a89f90fa4feb6ac888"
+  ]
+ },
+ "Evil0ctal/SimpleTweakEditor": {
+  "additions": 36127,
+  "deletions": 7902,
+  "head": "62a7ce6cb1d627c92663b4452c408e03b3fbf32e",
+  "last_date": "2025-06-12T07:08:49Z",
+  "oids": [
+   "62a7ce6cb1d627c92663b4452c408e03b3fbf32e"
+  ]
+ },
+ "Evil0ctal/Sora-Watermark-Remover": {
+  "additions": 410,
+  "deletions": 0,
+  "head": "2f740bef7fcb17a12310891ff69b018b0bd8f8df",
+  "last_date": "2025-10-12T10:12:54Z",
+  "oids": [
+   "2f740bef7fcb17a12310891ff69b018b0bd8f8df"
+  ]
+ },
+ "Evil0ctal/Telegram_API": {
+  "additions": 152,
+  "deletions": 0,
+  "head": "9d9d1e145fe4798e0cb9979c683cb59095b23139",
+  "last_date": "2021-12-11T08:17:19Z",
+  "oids": [
+   "9d9d1e145fe4798e0cb9979c683cb59095b23139"
+  ]
+ },
+ "Evil0ctal/TikTok-Live-Room-Scraper": {
+  "additions": 446,
+  "deletions": 7,
+  "head": "b71f66fb091e9a8015ba33d19aab79e4151554ec",
+  "last_date": "2024-02-03T12:06:03Z",
+  "oids": [
+   "b71f66fb091e9a8015ba33d19aab79e4151554ec"
+  ]
+ },
+ "Evil0ctal/URLDecoder": {
+  "additions": 444,
+  "deletions": 32,
+  "head": "6cfbbe2962156d4f52f51d8167069edc8866c2d8",
+  "last_date": "2023-03-18T01:50:50Z",
+  "oids": [
+   "6cfbbe2962156d4f52f51d8167069edc8866c2d8"
+  ]
+ },
+ "Evil0ctal/Upper-Confidence-Bound-Pywebio": {
+  "additions": 526,
+  "deletions": 2,
+  "head": "372cb7e1d3970bfa5d2ffbb68d6806eb4831cbf8",
+  "last_date": "2024-09-22T01:29:02Z",
+  "oids": [
+   "372cb7e1d3970bfa5d2ffbb68d6806eb4831cbf8"
+  ]
+ },
+ "Evil0ctal/WeChat-Channels-Video-File-Decryption": {
+  "additions": 4475560,
+  "deletions": 555,
+  "head": "799a131834ccc6ac69d1fbfa8c30350c4f718ccb",
+  "last_date": "2026-06-10T05:34:45Z",
+  "oids": [
+   "799a131834ccc6ac69d1fbfa8c30350c4f718ccb"
+  ]
+ },
+ "Evil0ctal/WeChat-image-decryption": {
+  "additions": 1143,
+  "deletions": 2,
+  "head": "df299c86f2d8cd0f44bf3acb6d1c1d650e45439c",
+  "last_date": "2025-02-25T02:39:40Z",
+  "oids": [
+   "df299c86f2d8cd0f44bf3acb6d1c1d650e45439c"
+  ]
+ },
+ "Evil0ctal/Wobble-Captcha": {
+  "additions": 7165,
+  "deletions": 11,
+  "head": "0758a8910bd9b836db011f94488dd9633b72b6ea",
+  "last_date": "2026-09-08T03:12:11Z",
+  "oids": [
+   "0758a8910bd9b836db011f94488dd9633b72b6ea"
+  ]
+ },
+ "Evil0ctal/Zenly-Ghost-mode-attack": {
+  "additions": 250,
+  "deletions": 1,
+  "head": "0fd4221aeb5b3686794497bef14ee86112366018",
+  "last_date": "2022-01-22T00:14:49Z",
+  "oids": [
+   "d2f5e0a41f1dcb35c5b3b96c4a9c551dbd0b1b62"
+  ]
+ },
+ "Evil0ctal/douyin.wtf": {
+  "additions": 7655,
+  "deletions": 72,
+  "head": "963bc648bde24df1e7b01d52631f487b726225b6",
+  "last_date": "2026-09-11T09:40:38Z",
+  "oids": [
+   "f813778f28e9f3d25edd43b85a83a49b469d6e1c"
+  ]
+ },
+ "Evil0ctal/iOS-IPA-Collection": {
+  "additions": 37,
+  "deletions": 1,
+  "head": "c67bf7c93b1932902038af1b64a5aa612cc19e1b",
+  "last_date": "2026-06-14T17:38:11Z",
+  "oids": [
+   "c67bf7c93b1932902038af1b64a5aa612cc19e1b"
+  ]
+ },
+ "Evil0ctal/picx": {
+  "additions": 2,
+  "deletions": 0,
+  "head": "45b7497631c0588b9ea57b139abe10635e1cd1bf",
+  "last_date": "2024-02-03T14:01:53Z",
+  "oids": [
+   "45b7497631c0588b9ea57b139abe10635e1cd1bf"
+  ]
+ },
+ "Evil0ctal/picx-images-hosting": {
+  "additions": 9,
+  "deletions": 0,
+  "head": "0dedcc36ccaa1a264a66cf2aa76d9304b223c281",
+  "last_date": "2024-02-03T14:02:35Z",
+  "oids": [
+   "0dedcc36ccaa1a264a66cf2aa76d9304b223c281"
+  ]
+ },
+ "Evil0ctal/ssl-kill-switch4": {
+  "additions": 247,
+  "deletions": 0,
+  "head": "fa7ebe8233462c5c109218d41241aea952730d0d",
+  "last_date": "2025-06-05T15:36:52Z",
+  "oids": [
+   "fa7ebe8233462c5c109218d41241aea952730d0d"
+  ]
+ },
+ "Evil0ctal/top100_community_colleges_CS_class_info": {
+  "additions": 2640,
+  "deletions": 197,
+  "head": "464d3345e3222a99b993cb9d765f16504df28571",
+  "last_date": "2022-05-15T02:04:55Z",
+  "oids": [
+   "464d3345e3222a99b993cb9d765f16504df28571"
+  ]
+ }
+}
