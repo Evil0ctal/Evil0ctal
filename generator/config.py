@@ -21,6 +21,15 @@ PAD = 18
 TITLEBAR_H = 34
 BODY_TOP = 52
 COLUMN_GAP = 34
+# Advance width used for *fit* calculations only (never for positioning).
+# CELL_W is the grid pitch the portrait is laid out on; the real advance of
+# the monospace stack at FONT_SIZE measures ~8.73-8.96px depending on which
+# face the viewer resolves. Wrapping and overflow checks use this
+# deliberately pessimistic figure so a row that fits here also fits at any
+# advance a real renderer picks.
+LAYOUT_ADVANCE_W = 9.2
+# Blank rows left between the portrait/info block and the contribution graph.
+GRAPH_GAP_ROWS = 1.0
 
 # --- palette ---
 BG = "#0d1117"
@@ -44,11 +53,18 @@ EMAIL = "Evil0ctal1985@gmail.com"
 TOP_LANGUAGES = 5
 LANG_BAR_CELLS = 10
 REPO_COUNT_SUFFIX = "sources"  # GitHub's own term for non-fork repos
+# `contributionsCollection` with no from/to covers the TRAILING TWELVE
+# MONTHS, not the calendar year -- the label has to say so.
+COMMITS_LABEL = "last 12 months"
 
 # --- info panel layout ---
 INFO_SEPARATOR_WIDTH = 46   # dash count for the "─"*N separator rules
 INFO_KEY_WIDTH = 11         # left-column width for key labels (e.g. "Repos")
 LANG_NAME_MAX_CHARS = 10    # language name truncation, one char short of INFO_KEY_WIDTH
+# Tokens that must never be left dangling at the end of a wrapped value:
+# they introduce the item that follows, so they travel with it to the next
+# line rather than trailing a line on their own.
+WRAP_SEPARATORS = ("·", "-", "|", "/", ",", ";", "+", "&")
 
 # --- window chrome (card frame + titlebar) ---
 CARD_RADIUS = 12                       # corner radius shared by the card and titlebar rects

@@ -1,5 +1,7 @@
 import json
 
+import pytest
+
 from generator.loc import HISTORY_QUERY, REPO_QUERY, LocError, LocTotals, compute, load_cache, save_cache
 
 
@@ -460,3 +462,138 @@ def test_stuck_history_cursor_still_persists_already_completed_repos(tmp_path):
     assert cache_after["u/done"]["head"] == "DONE"
     assert cache_after["u/done"]["additions"] == 4
     assert "u/stuck" not in cache_after, "the repo that raised must not be cached"
+
+
+# --- Final review coverage: F1 (the cache is never pruned) ---
+
+def test_renamed_repo_drops_its_old_cache_entry(tmp_path):
+    """F1, the reviewer's own repro. `compute` only ever added or updated
+    `cache[name]` while `LocTotals` summed every value unconditionally, so a
+    renamed repo's stale entry survived forever and its lines were counted
+    twice — two repos totalling 150 became 250 with zero new work, and the
+    cache could never self-correct.
+
+    Here `u/old` (100 lines) is renamed to `u/new` between runs; `u/keep`
+    (50 lines) is untouched. The honest total is still 150.
+    """
+    path = tmp_path / "loc.json"
+    save_cache(str(path), {
+        "u/old": {"head": "OLD", "last_date": "2026-01-01T00:00:00Z",
+                  "additions": 100, "deletions": 0, "oids": []},
+        "u/keep": {"head": "KEEP", "last_date": "2026-01-01T00:00:00Z",
+                   "additions": 50, "deletions": 0, "oids": []},
+    })
+    client = ScriptedClient([
+        # The listing now knows the repo only under its new name, so the
+        # rename reads as a cold repo whose whole history re-walks.
+        repo_list_payload([repo_node("u/new", "OLD"), repo_node("u/keep", "KEEP")]),
+        history_payload([commit("c1", 100, 0, date="2026-01-01T00:00:00Z")]),
+    ])
+    totals = compute(client, "u", "NODE", str(path), budget_seconds=60)
+
+    assert totals.additions == 150, (
+        f"expected the true total 150 after a rename, got {totals.additions} "
+        "— the stale entry under the old name is still being summed"
+    )
+    assert totals.stale is False
+    cache_after = load_cache(str(path))
+    assert "u/old" not in cache_after, "the old name must be pruned from the cache"
+    assert set(cache_after) == {"u/new", "u/keep"}
+
+
+def test_vanished_repo_name_is_removed_from_the_cache_file(tmp_path):
+    """F1, privacy half: `cache/loc.json` is a committed artifact of a
+    public repository. A repo that is deleted, archived-and-privatised or
+    otherwise drops out of the `privacy: PUBLIC` listing must have its NAME
+    leave that file, not merely stop being updated."""
+    path = tmp_path / "loc.json"
+    save_cache(str(path), {
+        "u/went-private": {"head": "P", "last_date": None,
+                           "additions": 900, "deletions": 9, "oids": []},
+        "u/public": {"head": "A", "last_date": None,
+                     "additions": 1, "deletions": 0, "oids": []},
+    })
+    client = ScriptedClient([repo_list_payload([repo_node("u/public", "A")])])
+    totals = compute(client, "u", "NODE", str(path), budget_seconds=60)
+
+    assert totals == LocTotals(additions=1, deletions=0, stale=False)
+    on_disk = json.load(open(path))
+    assert "u/went-private" not in on_disk
+    assert "went-private" not in json.dumps(on_disk), \
+        "the vanished repository's name must not survive anywhere in the file"
+
+
+def test_repo_with_no_default_branch_is_not_pruned(tmp_path):
+    """A repo that is listed but has no default branch still exists — it is
+    skipped for counting, never pruned. (It would be pruned if `seen_names`
+    were only recorded past the empty-branch guard.)"""
+    path = tmp_path / "loc.json"
+    save_cache(str(path), {"u/empty": {"head": "E", "last_date": None,
+                                       "additions": 3, "deletions": 1, "oids": []}})
+    client = ScriptedClient([repo_list_payload([empty_branch_repo_node("u/empty")])])
+    totals = compute(client, "u", "NODE", str(path), budget_seconds=60)
+
+    assert totals.additions == 3
+    assert "u/empty" in load_cache(str(path))
+
+
+def test_budget_truncated_run_prunes_nothing(tmp_path):
+    """F1's critical guard. A truncated run has seen only an arbitrary
+    prefix of the repositories, so pruning against it would delete every
+    repo it simply never reached — turning a slow day into a silent wipe of
+    the card's totals."""
+    path = tmp_path / "loc.json"
+    save_cache(str(path), {
+        "u/a": {"head": "A", "last_date": None, "additions": 10, "deletions": 1, "oids": []},
+        "u/b": {"head": "B", "last_date": None, "additions": 20, "deletions": 2, "oids": []},
+    })
+    client = ScriptedClient([])  # budget already spent: no call is made at all
+    totals = compute(client, "u", "NODE", str(path), budget_seconds=0)
+
+    assert totals.stale is True
+    assert totals.additions == 30, "a truncated run must still report the cached totals"
+    assert set(load_cache(str(path))) == {"u/a", "u/b"}, \
+        "a truncated run saw no listing at all and must prune nothing"
+
+
+def test_budget_truncated_mid_listing_keeps_unreached_repos(tmp_path):
+    """The same guard one page in: the budget expires after page 1, so the
+    repos that only appear on page 2 were never listed. They must survive."""
+    path = tmp_path / "loc.json"
+    save_cache(str(path), {
+        "u/page1": {"head": "A", "last_date": None, "additions": 10, "deletions": 0, "oids": []},
+        "u/page2": {"head": "B", "last_date": None, "additions": 20, "deletions": 0, "oids": []},
+    })
+    client = ScriptedClient([
+        repo_list_payload([repo_node("u/page1", "A")], has_next_page=True, end_cursor="p2"),
+    ])
+    # started, top-of-loop (in budget), top-of-loop after page 1 (over budget).
+    ticks = iter([0, 0, 100])
+    totals = compute(client, "u", "NODE", str(path), budget_seconds=10,
+                     clock=lambda: next(ticks))
+
+    assert totals.stale is True
+    assert totals.additions == 30
+    assert set(load_cache(str(path))) == {"u/page1", "u/page2"}, \
+        "page 2 was never fetched, so its repos must not be pruned"
+    assert len(client.calls) == 1
+
+
+def test_aborted_run_prunes_nothing(tmp_path):
+    """A run that dies on a stuck cursor must persist what it walked (B5)
+    without pruning: it never learned the full repository list, so the
+    entries it did not reach are not evidence of anything."""
+    path = tmp_path / "loc.json"
+    save_cache(str(path), {"u/other": {"head": "O", "last_date": None,
+                                       "additions": 7, "deletions": 0, "oids": []}})
+    client = ScriptedClient([
+        repo_list_payload([repo_node("u/a", "A")], has_next_page=True, end_cursor=None),
+        history_payload([commit("c1", 1, 0)]),
+    ])
+    with pytest.raises(LocError):
+        compute(client, "u", "NODE", str(path), budget_seconds=60)
+
+    cache_after = load_cache(str(path))
+    assert cache_after["u/other"]["additions"] == 7, \
+        "an aborted listing must not prune repos it never reached"
+    assert cache_after["u/a"]["additions"] == 1, "already-walked work is still banked"

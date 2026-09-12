@@ -1,6 +1,11 @@
+import copy
 from datetime import datetime, timezone
 
-from generator.stats import LANGUAGE_QUERY, PROFILE_QUERY, Language, fetch_languages, fetch_profile, uptime
+import pytest
+
+from generator.stats import (
+    LANGUAGE_QUERY, PROFILE_QUERY, Language, StatsError, fetch_languages, fetch_profile, uptime,
+)
 
 
 class FakeClient:
@@ -100,3 +105,52 @@ def test_profile_query_excludes_private_repos():
 
 def test_language_query_excludes_private_repos():
     assert "privacy: PUBLIC" in LANGUAGE_QUERY
+
+
+# --- Final review coverage: F4 (repositories(first: 100) had no page guard) ---
+
+def paged(payload, has_next_page):
+    """Same payload, with the repository listing's pageInfo attached."""
+    payload = copy.deepcopy(payload)
+    payload["user"]["repositories"]["pageInfo"] = {"hasNextPage": has_next_page}
+    return payload
+
+
+def test_both_queries_request_the_listing_page_info():
+    """F4: without pageInfo there is nothing to check. `totalCount` stays
+    exact while stars, forks and the language mix are summed over at most
+    100 nodes, so crossing 100 undercounts with the repo count still
+    looking right."""
+    for query in (PROFILE_QUERY, LANGUAGE_QUERY):
+        assert "pageInfo { hasNextPage }" in query
+
+
+def test_profile_fails_loudly_when_the_repo_listing_has_another_page():
+    """A wrong number is worse than no number: past 100 public sources the
+    star and fork totals must abort the build, not quietly undercount."""
+    with pytest.raises(StatsError) as raised:
+        fetch_profile(FakeClient(paged(PROFILE_PAYLOAD, True)), "someone")
+    message = str(raised.value)
+    assert "100" in message, "the error must name the limitation it hit"
+    assert "undercount" in message
+
+
+def test_languages_fail_loudly_when_the_repo_listing_has_another_page():
+    with pytest.raises(StatsError) as raised:
+        fetch_languages(FakeClient(paged(LANG_PAYLOAD, True)), "someone")
+    assert "language mix" in str(raised.value)
+
+
+def test_a_single_page_listing_is_summed_normally():
+    """The guard must fire on hasNextPage only — a listing that fits in one
+    page is exactly what the card is built from every day."""
+    profile = fetch_profile(FakeClient(paged(PROFILE_PAYLOAD, False)), "someone")
+    assert profile.stars == 20471
+    langs = fetch_languages(FakeClient(paged(LANG_PAYLOAD, False)), "someone", top=2)
+    assert [language.name for language in langs] == ["Python", "Java"]
+
+
+def test_stats_error_is_catchable_as_a_runtime_error():
+    """main() catches RuntimeError, so the loud failure becomes a clean
+    non-zero exit rather than a raw traceback."""
+    assert issubclass(StatsError, RuntimeError)

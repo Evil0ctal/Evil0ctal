@@ -21,6 +21,14 @@ exactly as it was and no further repositories are processed. Recording a new
 permanent, since every future run would see the head already matches and skip
 the repo entirely.
 
+The cache is also *pruned* against the listing: any key not seen in this
+run's repository listing is dropped, so a renamed, deleted or newly-private
+repository stops inflating the totals and its name leaves the committed
+public cache file. That prune is gated on the listing having actually
+finished — a budget-truncated or aborted run has only seen an arbitrary
+prefix of the repositories, and pruning against that prefix would delete
+every repo it simply never reached.
+
 Both pagination cursors (the repo list's and a single repo's history) are
 guarded against a cursor that fails to advance: GitHub reporting
 `hasNextPage: true` without a usable `endCursor` would otherwise either spin
@@ -233,6 +241,15 @@ def compute(client, username: str, user_node_id: str, cache_path: str,
     started = clock_fn()
     stale = False
 
+    # Every repository name the listing returned this run. Used to prune
+    # entries for repos that were renamed, deleted, made private or
+    # otherwise dropped out of `privacy: PUBLIC` — without this the cache
+    # can never self-correct: a renamed repo's old entry keeps inflating
+    # the card's totals forever, and its name stays in the committed
+    # public cache file. Pruning is gated on `listing_complete` below.
+    seen_names: set[str] = set()
+    listing_complete = False
+
     cursor = None
     try:
         while True:
@@ -250,11 +267,16 @@ def compute(client, username: str, user_node_id: str, cache_path: str,
             budget_exhausted = False
 
             for node in repositories["nodes"]:
+                name = node["nameWithOwner"]
+                # Recorded before the empty-branch skip: a repo with no
+                # default branch still *exists* publicly, so it must not be
+                # pruned out of the cache.
+                seen_names.add(name)
+
                 branch = node.get("defaultBranchRef")
                 if not branch or not branch.get("target"):
                     continue
 
-                name = node["nameWithOwner"]
                 head = branch["target"]["oid"]
                 entry = cache.get(name)
 
@@ -292,6 +314,7 @@ def compute(client, username: str, user_node_id: str, cache_path: str,
                         )
                     cursor = next_cursor
                     continue
+                listing_complete = True
                 break
 
             # Reaching here means the for-loop above hit `break`, i.e. the
@@ -299,6 +322,14 @@ def compute(client, username: str, user_node_id: str, cache_path: str,
             stale = True
             break
     finally:
+        # Prune before saving, but ONLY when the listing ran to completion.
+        # A budget-truncated or aborted run has seen an arbitrary prefix of
+        # the repositories, so pruning against it would delete every repo it
+        # simply never reached — turning a slow day into a silent wipe of
+        # the totals. `listing_complete` is only ever set on the
+        # hasNextPage-is-false exit; `not stale` is belt-and-braces.
+        if listing_complete and not stale:
+            cache = {name: entry for name, entry in cache.items() if name in seen_names}
         # Persist whatever repos were fully walked before returning *or*
         # before a LocError propagates — a stuck cursor must not discard
         # every repo already completed in this run.

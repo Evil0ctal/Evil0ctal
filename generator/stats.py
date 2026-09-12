@@ -1,10 +1,41 @@
-"""Profile counters and language mix, derived from GraphQL. No SVG, no files."""
+"""Profile counters and language mix, derived from GraphQL. No SVG, no files.
+
+Two figures here are *token-scope dependent* and will differ between a
+local run and CI:
+
+* `Profile.commits` (`contributionsCollection.totalCommitContributions`)
+* the contribution heat map (`generator/calendar.py`, same collection)
+
+Both are computed by GitHub against whatever the presented token can see,
+so a broadly-scoped personal token counts private work that CI's narrower
+PAT does not. We deliberately do NOT subtract `restrictedContributionsCount`
+to force public-only semantics: those semantics are subtle enough that the
+fix risks introducing a new wrong number while correcting one, and a wrong
+number renders as authoritative. CI's narrower PAT is canonical — after the
+first scheduled run, the committed card carries CI's values, and a local
+rebuild may briefly show higher ones.
+
+`contributionsCollection` with no `from`/`to` covers the TRAILING TWELVE
+MONTHS, not the calendar year; `config.COMMITS_LABEL` says so on the card.
+"""
 import collections
 from dataclasses import dataclass
 from datetime import datetime, timezone
 
 from generator import config
 
+
+class StatsError(RuntimeError):
+    """Raised when a payload cannot be summed truthfully — currently, when
+    the repository listing has a further page that `first: 100` did not
+    return. Star/fork/language totals summed over a truncated node list
+    would undercount silently while `totalCount` stayed correct, which is
+    exactly the wrong-number-rendered-as-authoritative failure this project
+    refuses to ship."""
+
+
+# `first: 100` is GitHub's per-page maximum. `pageInfo.hasNextPage` is
+# requested purely so crossing it fails loudly instead of undercounting.
 PROFILE_QUERY = """
 query($login: String!) {
   user(login: $login) {
@@ -12,6 +43,7 @@ query($login: String!) {
     followers { totalCount }
     repositories(first: 100, ownerAffiliations: OWNER, isFork: false, privacy: PUBLIC) {
       totalCount
+      pageInfo { hasNextPage }
       nodes { stargazerCount forkCount }
     }
     contributionsCollection { totalCommitContributions }
@@ -23,6 +55,7 @@ LANGUAGE_QUERY = """
 query($login: String!) {
   user(login: $login) {
     repositories(first: 100, ownerAffiliations: OWNER, isFork: false, privacy: PUBLIC) {
+      pageInfo { hasNextPage }
       nodes { languages(first: 10) { edges { size node { name color } } } }
     }
   }
@@ -56,10 +89,29 @@ def _require(payload: dict, *path):
     return node
 
 
+def _reject_truncated_listing(repos: dict, what: str) -> None:
+    """Abort if GitHub says the repository listing has another page.
+
+    Everything summed from `nodes` (stars, forks, the whole language mix)
+    is summed over at most the 100 repositories one page returns, while
+    `totalCount` stays exact — so crossing 100 would quietly undercount
+    with no failure anywhere on the card. Fail loudly instead; paginating
+    is a deliberate change to make, not something to guess at silently.
+    """
+    if (repos.get("pageInfo") or {}).get("hasNextPage"):
+        raise StatsError(
+            f"more than 100 public source repositories: {what} is summed over "
+            "the first page of `repositories(first: 100)` only and would "
+            "silently undercount. Paginate the query in generator/stats.py "
+            "before trusting this card again."
+        )
+
+
 def fetch_profile(client, username: str) -> Profile:
     data = client.graphql(PROFILE_QUERY, login=username)
     user = _require(data, "user")
     repos = _require(user, "repositories")
+    _reject_truncated_listing(repos, "the star and fork total")
     nodes = repos.get("nodes") or []
     return Profile(
         created_at=datetime.strptime(user["createdAt"], "%Y-%m-%dT%H:%M:%SZ").replace(tzinfo=timezone.utc),
@@ -73,9 +125,11 @@ def fetch_profile(client, username: str) -> Profile:
 
 def fetch_languages(client, username: str, top: int = config.TOP_LANGUAGES) -> list[Language]:
     data = client.graphql(LANGUAGE_QUERY, login=username)
+    repos = _require(data, "user", "repositories")
+    _reject_truncated_listing(repos, "the language mix")
     totals: collections.Counter = collections.Counter()
     colours: dict[str, str] = {}
-    for repo in _require(data, "user", "repositories").get("nodes") or []:
+    for repo in repos.get("nodes") or []:
         for edge in (repo.get("languages") or {}).get("edges") or []:
             name = edge["node"]["name"]
             totals[name] += edge["size"]

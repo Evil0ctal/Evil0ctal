@@ -77,3 +77,55 @@ def test_snake_path_serpentines_by_column():
 def test_snake_path_rejects_empty_grid():
     with pytest.raises(ValueError):
         snake_path(0, 5)
+
+
+# --- Final review coverage: GitHub always sends partial edge weeks ---
+
+def partial_calendar_payload(weeks):
+    """A calendar whose weeks carry only the weekdays listed, as GitHub
+    really returns them: the first week starts on the weekday the window
+    opened, the last stops on today's weekday."""
+    return {"user": {"contributionsCollection": {"contributionCalendar": {
+        "totalContributions": sum(count for week in weeks for _, count in week),
+        "weeks": [
+            {"contributionDays": [
+                {"date": "2026-01-01", "contributionCount": count, "weekday": weekday}
+                for weekday, count in week
+            ]} for week in weeks
+        ],
+    }}}}
+
+
+def test_fetch_counts_handles_partial_first_and_last_weeks():
+    """The real API never returns a calendar of full 7-day weeks: the first
+    week begins mid-week and the last ends today. Days GitHub did not send
+    must read as zero and must NOT shift the days it did send onto the
+    wrong weekday row — the grid is indexed by the reported `weekday`, not
+    by position within the list.
+    """
+    counts = fetch_counts(FakeClient(partial_calendar_payload([
+        [(4, 11), (5, 12), (6, 13)],                                    # partial first
+        [(0, 1), (1, 2), (2, 3), (3, 4), (4, 5), (5, 6), (6, 7)],       # full
+        [(0, 21), (1, 22)],                                             # partial last
+    ])), "x")
+
+    assert len(counts) == 7, "always seven weekday rows, however ragged the weeks"
+    assert all(len(row) == 3 for row in counts)
+    assert counts[4][0] == 11 and counts[5][0] == 12 and counts[6][0] == 13
+    assert counts[0][0] == 0 and counts[3][0] == 0, "unsent leading days are zero"
+    assert counts[0][1] == 1 and counts[6][1] == 7
+    assert counts[0][2] == 21 and counts[1][2] == 22
+    assert counts[2][2] == 0 and counts[6][2] == 0, "unsent trailing days are zero"
+
+
+def test_partial_edge_weeks_do_not_disturb_bucketing():
+    """The zeros a partial week leaves behind are real absences (level 0),
+    not quiet days that should pull the quantiles down."""
+    counts = fetch_counts(FakeClient(partial_calendar_payload([
+        [(6, 5)],
+        [(0, 5), (1, 5), (2, 5), (3, 5), (4, 5), (5, 5), (6, 5)],
+    ])), "x")
+    levels = bucket_levels(counts)
+    assert levels[6][0] >= 1
+    assert levels[0][0] == 0, "a day GitHub never sent must stay at level 0"
+    assert all(level >= 1 for level in [row[1] for row in levels])

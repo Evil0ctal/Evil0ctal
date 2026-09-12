@@ -8,7 +8,7 @@ import requests
 from generator import config, main as main_module
 from generator.github import GitHubError
 from generator.loc import LocTotals
-from generator.stats import Language, Profile
+from generator.stats import Language, Profile, StatsError
 
 PROFILE = Profile(created_at=datetime(2016, 7, 31, tzinfo=timezone.utc),
                   followers=1, repos=2, stars=3, forks=4, commits=5)
@@ -110,3 +110,17 @@ def test_write_is_atomic_and_leaves_no_temp_file(wired):
     assert main_module.main([]) == 0
     leftovers = [p for p in os.listdir(wired) if p != "profile.svg"]
     assert leftovers == [], f"main() left temp files behind: {leftovers}"
+
+
+# --- Final review coverage: F4 end to end ---
+
+def test_repo_listing_overflow_aborts_the_build(wired, monkeypatch):
+    """F4: StatsError must reach main()'s handler and become a clean
+    SystemExit — a loud CI failure, never a card rendered from undercounted
+    stars and forks."""
+    def boom(client, username):
+        raise StatsError("more than 100 public source repositories")
+    monkeypatch.setattr(main_module.stats, "fetch_profile", boom)
+    with pytest.raises(SystemExit):
+        main_module.main([])
+    assert not (wired / "profile.svg").exists()
