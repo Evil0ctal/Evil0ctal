@@ -9,7 +9,8 @@ class GitHubError(RuntimeError):
 
 
 class GitHubClient:
-    def __init__(self, token: str, endpoint: str = config.GITHUB_API, timeout: int = 30):
+    def __init__(self, token: str, endpoint: str = config.GITHUB_API,
+                 timeout: int = config.GITHUB_TIMEOUT_SECONDS):
         if not token:
             raise GitHubError("A GitHub token is required; set ACCESS_TOKEN.")
         self._endpoint = endpoint

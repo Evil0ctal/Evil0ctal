@@ -53,6 +53,7 @@ SNAKE_CYCLE_SECONDS = 12.0
 LOC_CACHE_PATH = "cache/loc.json"
 LOC_BUDGET_SECONDS = 240
 LOC_PAGE_SIZE = 100
+GITHUB_TIMEOUT_SECONDS = 30
 
 OUTPUT_PATH = "profile.svg"
 GITHUB_API = "https://api.github.com/graphql"
