@@ -64,6 +64,14 @@ TITLEBAR_CAPTION_SUFFIX = " — neofetch"
 CONTRIB_ROWS = 7
 BUCKET_QUANTILES = [0.25, 0.50, 0.75, 0.90]
 SNAKE_CYCLE_SECONDS = 12.0
+CONTRIB_CELL_CHAR = "■"     # filled cell, levels 1-4
+CONTRIB_EMPTY_CHAR = "·"    # level-0 (no contributions) cell
+# @keyframes offsets (% of SNAKE_CYCLE_SECONDS) for the snake's head flash:
+# holds the level colour, flashes to SNAKE_COLOR, drops to the empty
+# colour and holds there before recovering to the level colour at 100%.
+SNAKE_FLASH_PCT = 3
+SNAKE_FADE_PCT = 6
+SNAKE_HOLD_PCT = 55
 
 # --- loc ---
 LOC_CACHE_PATH = "cache/loc.json"
