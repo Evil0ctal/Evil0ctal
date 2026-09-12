@@ -1,0 +1,18 @@
+# macOS
+.DS_Store
+.AppleDouble
+.LSOverride
+
+# JetBrains IDEs
+.idea/
+*.iml
+
+# Editors
+.vscode/
+*.swp
+
+# Local-only design docs
+docs/
+
+# SDD scratch
+.superpowers/
