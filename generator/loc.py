@@ -25,9 +25,11 @@ Both pagination cursors (the repo list's and a single repo's history) are
 guarded against a cursor that fails to advance: GitHub reporting
 `hasNextPage: true` without a usable `endCursor` would otherwise either spin
 until the time budget is burned, or (for history, whose cursor argument used
-to be typed non-null) crash the whole run via a GraphQL variable-type error,
-discarding every repo already completed. Either failure mode is loud
-(`LocError`), never a silent under/over-count.
+to be typed non-null) crash the whole run via a GraphQL variable-type error.
+Either failure mode raises loudly (`LocError`), never a silent under/over-
+count — and `compute` saves whatever repos it had already fully walked
+before re-raising, via a `finally` around the walk, so a stuck cursor loses
+at most the run in progress, never the work already banked in the cache.
 """
 import json
 import os
@@ -116,9 +118,17 @@ def save_cache(path: str, data: dict) -> None:
 
 
 def _fetch_history_page(client, name: str, user_node_id: str,
-                         cursor: Optional[str], since: Optional[str]) -> dict:
+                         cursor: Optional[str], since: Optional[str]) -> Optional[dict]:
     """Fetch one page (the first, if `cursor` is None) of a single
-    repository's commit history by this author, from `since` onward."""
+    repository's commit history by this author, from `since` onward.
+
+    Returns `None` if the repo's default branch has no target to walk —
+    e.g. its default branch (or the whole repo) was deleted between the
+    repo-list call and this fetch. The list path already treats a missing
+    `defaultBranchRef`/`target` as "nothing to walk"; this mirrors that
+    instead of raising `TypeError` on the now much more common first-page
+    fetch.
+    """
     owner, _, repo_name = name.partition("/")
     payload = client.graphql(
         HISTORY_QUERY,
@@ -129,7 +139,11 @@ def _fetch_history_page(client, name: str, user_node_id: str,
         pageSize=config.LOC_PAGE_SIZE,
         since=since,
     )
-    return payload["repository"]["defaultBranchRef"]["target"]["history"]
+    repository = payload.get("repository")
+    branch = repository.get("defaultBranchRef") if repository else None
+    if not branch or not branch.get("target"):
+        return None
+    return branch["target"]["history"]
 
 
 def _walk_history(client, name: str, user_node_id: str, since: Optional[str],
@@ -137,8 +151,11 @@ def _walk_history(client, name: str, user_node_id: str, since: Optional[str],
                    budget_seconds: int):
     """Page through a repository's commit history from `since` to the end.
 
-    Returns `(commits, True)` once the walk reaches the end, or
-    `(partial_commits, False)` if the time budget runs out first — the
+    Returns `(commits, True)` once the walk reaches the end, `(None, True)`
+    if the repo's default branch disappeared before any page could be
+    fetched (nothing to walk — the caller should skip this repo exactly as
+    it would have if the list call itself had reported no default branch),
+    or `(partial_commits, False)` if the time budget runs out first — the
     caller must discard `partial_commits` and never let a partial walk
     update the cache.
 
@@ -153,6 +170,8 @@ def _walk_history(client, name: str, user_node_id: str, since: Optional[str],
             return commits, False
 
         history = _fetch_history_page(client, name, user_node_id, cursor, since)
+        if history is None:
+            return None, True
         commits.extend(history["nodes"])
 
         page_info = history["pageInfo"]
@@ -185,7 +204,10 @@ def _merge_commits(entry: Optional[dict], commits: list) -> dict:
     additions = entry["additions"] if entry else 0
     deletions = entry["deletions"] if entry else 0
     latest_date = entry.get("last_date") if entry else None
-    latest_oids = list(counted) if entry else []
+    # `sorted`, not `list`: Python randomises string hashing per process, so
+    # an unordered `set` would serialise `oids` in a different order every
+    # run and churn the committed cache/loc.json diff for no reason.
+    latest_oids = sorted(counted) if entry else []
 
     for commit in commits:
         oid = commit["oid"]
@@ -212,64 +234,76 @@ def compute(client, username: str, user_node_id: str, cache_path: str,
     stale = False
 
     cursor = None
-    while True:
-        # Checked at the top of every iteration — not just after the
-        # per-repo skip paths below — so the steady-state case (every repo
-        # in a page already up to date) still re-checks the budget before
-        # firing another repo-list request instead of spinning forever.
-        if clock_fn() - started >= budget_seconds:
-            stale = True
-            break
-
-        data = client.graphql(REPO_QUERY, login=username, cursor=cursor)
-        repositories = data["user"]["repositories"]
-        budget_exhausted = False
-
-        for node in repositories["nodes"]:
-            branch = node.get("defaultBranchRef")
-            if not branch or not branch.get("target"):
-                continue
-
-            name = node["nameWithOwner"]
-            head = branch["target"]["oid"]
-            entry = cache.get(name)
-
-            if entry and entry.get("head") == head:
-                continue
-
+    try:
+        while True:
+            # Checked at the top of every iteration — not just after the
+            # per-repo skip paths below — so the steady-state case (every
+            # repo in a page already up to date) still re-checks the budget
+            # before firing another repo-list request instead of spinning
+            # forever.
             if clock_fn() - started >= budget_seconds:
-                budget_exhausted = True
+                stale = True
                 break
 
-            since = entry.get("last_date") if entry else None
-            commits, walked_fully = _walk_history(
-                client, name, user_node_id, since, clock_fn, started, budget_seconds)
-            if not walked_fully:
-                budget_exhausted = True
-                break  # leave this repo's cache entry untouched
+            data = client.graphql(REPO_QUERY, login=username, cursor=cursor)
+            repositories = data["user"]["repositories"]
+            budget_exhausted = False
 
-            merged = _merge_commits(entry, commits)
-            cache[name] = {"head": head, **merged}
-        else:
-            page_info = repositories["pageInfo"]
-            if page_info["hasNextPage"]:
-                next_cursor = page_info["endCursor"]
-                if next_cursor == cursor:
-                    raise LocError(
-                        "repository listing cursor did not advance "
-                        f"(stuck at {cursor!r}) while hasNextPage was true; "
-                        "aborting rather than risk an infinite loop."
-                    )
-                cursor = next_cursor
-                continue
+            for node in repositories["nodes"]:
+                branch = node.get("defaultBranchRef")
+                if not branch or not branch.get("target"):
+                    continue
+
+                name = node["nameWithOwner"]
+                head = branch["target"]["oid"]
+                entry = cache.get(name)
+
+                if entry and entry.get("head") == head:
+                    continue
+
+                if clock_fn() - started >= budget_seconds:
+                    budget_exhausted = True
+                    break
+
+                since = entry.get("last_date") if entry else None
+                commits, walked_fully = _walk_history(
+                    client, name, user_node_id, since, clock_fn, started, budget_seconds)
+                if not walked_fully:
+                    budget_exhausted = True
+                    break  # leave this repo's cache entry untouched
+                if commits is None:
+                    # The repo's default branch disappeared between the
+                    # list call and the history fetch. Skip it exactly as
+                    # the list-path guard above would have, leaving any
+                    # prior cache entry untouched.
+                    continue
+
+                merged = _merge_commits(entry, commits)
+                cache[name] = {"head": head, **merged}
+            else:
+                page_info = repositories["pageInfo"]
+                if page_info["hasNextPage"]:
+                    next_cursor = page_info["endCursor"]
+                    if next_cursor == cursor:
+                        raise LocError(
+                            "repository listing cursor did not advance "
+                            f"(stuck at {cursor!r}) while hasNextPage was true; "
+                            "aborting rather than risk an infinite loop."
+                        )
+                    cursor = next_cursor
+                    continue
+                break
+
+            # Reaching here means the for-loop above hit `break`, i.e. the
+            # budget ran out; stop pulling further pages of repositories too.
+            stale = True
             break
+    finally:
+        # Persist whatever repos were fully walked before returning *or*
+        # before a LocError propagates — a stuck cursor must not discard
+        # every repo already completed in this run.
+        save_cache(cache_path, cache)
 
-        # Reaching here means the for-loop above hit `break`, i.e. the
-        # budget ran out; stop pulling further pages of repositories too.
-        stale = True
-        break
-
-    save_cache(cache_path, cache)
     return LocTotals(
         additions=sum(entry["additions"] for entry in cache.values()),
         deletions=sum(entry["deletions"] for entry in cache.values()),

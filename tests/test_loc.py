@@ -112,7 +112,10 @@ def test_already_counted_oids_are_not_double_counted(tmp_path):
     assert totals.deletions == 101
 
     cache_after = load_cache(str(path))
-    assert set(cache_after["u/r"]["oids"]) == {"c1", "c2"}, \
+    # B1: oids must serialise in a deterministic (sorted) order, not
+    # whatever order a set happens to iterate in -- otherwise the committed
+    # cache/loc.json diff churns on every run that re-walks a repo.
+    assert cache_after["u/r"]["oids"] == ["c1", "c2"], \
         "the prior boundary oid c1 must be carried forward, not dropped, " \
         "or it will be double-counted the next time it is refetched"
 
@@ -180,6 +183,14 @@ def test_paginated_history_counts_commits_from_both_pages(tmp_path):
     # forever.
     _, second_vars = client.calls[2]
     assert second_vars["cursor"] == "cur1"
+
+    # B2: a fully-walked MULTI-PAGE repo must actually write its new head
+    # and the totals accumulated across both pages -- the exact complement
+    # of test_budget_expiring_mid_repo_leaves_cache_entry_unchanged below.
+    cache_after = load_cache(str(path))
+    assert cache_after["u/r"]["head"] == "HEAD"
+    assert cache_after["u/r"]["additions"] == 10
+    assert cache_after["u/r"]["deletions"] == 3
 
 
 def test_budget_expiring_mid_repo_leaves_cache_entry_unchanged(tmp_path):
@@ -357,3 +368,88 @@ def test_save_cache_is_atomic_and_leaves_no_temp_file(tmp_path):
     assert load_cache(str(path))["a/b"]["head"] == "y"
     leftovers = [p for p in tmp_path.iterdir() if p.name != "loc.json"]
     assert leftovers == [], f"save_cache left temp files behind: {leftovers}"
+
+
+# --- Fix round 2 coverage ---
+
+def test_history_first_page_vanished_branch_is_skipped(tmp_path):
+    """B4: if a repo's default branch disappears between the list call and
+    the history fetch (e.g. it was deleted in between), the history fetch
+    must not crash with an unguarded-dereference TypeError. The repo
+    should be skipped exactly as the list-path guard already skips a repo
+    with no default branch at all, leaving no cache entry for it."""
+    path = tmp_path / "loc.json"
+    client = ScriptedClient([
+        repo_list_payload([repo_node("u/r", "HEAD")]),
+        {"repository": {"defaultBranchRef": None}},
+    ])
+    totals = compute(client, "u", "NODE", str(path), budget_seconds=60)
+    assert totals == LocTotals(additions=0, deletions=0, stale=False)
+    assert load_cache(str(path)) == {}, "a vanished branch must not write a cache entry"
+
+
+def test_history_first_page_missing_repository_is_skipped(tmp_path):
+    """B4, second shape of the same race: the whole repository object can
+    come back null (e.g. the repo itself was deleted or renamed) rather
+    than just its defaultBranchRef."""
+    path = tmp_path / "loc.json"
+    client = ScriptedClient([
+        repo_list_payload([repo_node("u/r", "HEAD")]),
+        {"repository": None},
+    ])
+    totals = compute(client, "u", "NODE", str(path), budget_seconds=60)
+    assert totals == LocTotals(additions=0, deletions=0, stale=False)
+    assert load_cache(str(path)) == {}
+
+
+def test_stuck_repo_list_cursor_still_persists_already_completed_repos(tmp_path):
+    """B5: a LocError raised for a stuck cursor must not discard repos this
+    run had already fully walked. This is my own error being corrected,
+    not the reviewer's: the I2/I3 guards were told to fail loudly, but
+    raising out of compute() before save_cache silently reintroduced the
+    exact harm Correction 2 (fix round 1) was written to prevent."""
+    path = tmp_path / "loc.json"
+    client = ScriptedClient([
+        # Page 1 has one repo that fully walks (no prior cache entry --
+        # cold, one commit), then reports hasNextPage: True with the same
+        # (None) cursor it started from -- stuck.
+        repo_list_payload([repo_node("u/r", "HEAD")], has_next_page=True, end_cursor=None),
+        history_payload([commit("c1", 7, 2)]),
+    ])
+    try:
+        compute(client, "u", "NODE", str(path), budget_seconds=60)
+        assert False, "expected LocError for a non-advancing repo-list cursor"
+    except LocError:
+        pass
+
+    cache_after = load_cache(str(path))
+    assert cache_after["u/r"]["head"] == "HEAD", \
+        "the repo fully walked before the stuck cursor was detected must " \
+        "still be persisted"
+    assert cache_after["u/r"]["additions"] == 7
+    assert cache_after["u/r"]["deletions"] == 2
+
+
+def test_stuck_history_cursor_still_persists_already_completed_repos(tmp_path):
+    """B5, same guarantee for the history-pagination guard: a repo fully
+    walked earlier in the run must survive a LocError raised while walking
+    a later repo's stuck history."""
+    path = tmp_path / "loc.json"
+    client = ScriptedClient([
+        repo_list_payload([
+            repo_node("u/done", "DONE"),
+            repo_node("u/stuck", "STUCK"),
+        ], has_next_page=False),
+        history_payload([commit("c1", 4, 1)]),  # u/done walks fully
+        history_payload([commit("c2", 9, 0)], has_next_page=True, end_cursor=None),  # u/stuck
+    ])
+    try:
+        compute(client, "u", "NODE", str(path), budget_seconds=60)
+        assert False, "expected LocError for a non-advancing history cursor"
+    except LocError:
+        pass
+
+    cache_after = load_cache(str(path))
+    assert cache_after["u/done"]["head"] == "DONE"
+    assert cache_after["u/done"]["additions"] == 4
+    assert "u/stuck" not in cache_after, "the repo that raised must not be cached"
