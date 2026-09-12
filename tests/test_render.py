@@ -288,3 +288,35 @@ def test_switching_the_graph_off_shortens_the_card(monkeypatch):
     without = float(ET.fromstring(
         build_svg(GRID, PROFILE, LANGS, LEVELS, LOC, PATH, now=NOW)).get("height"))
     assert without < with_graph
+
+
+def test_legible_lifts_an_invisible_language_colour():
+    """GitHub's WebAssembly colour scores 1.05 on this background."""
+    from generator.render import _contrast, legible
+    raw = "#04133b"
+    assert _contrast(raw, config.BG) < 2.0
+    assert _contrast(legible(raw), config.BG) >= config.LANG_MIN_CONTRAST
+
+
+def test_legible_leaves_an_already_readable_colour_alone():
+    from generator.render import legible
+    bright = "#f1e05a"          # JavaScript, contrast ~14
+    assert legible(bright) == bright
+
+
+def test_legible_rejects_malformed_colours():
+    from generator.render import legible
+    for bad in ("", "red", "#12345", "#zzzzzz", "#0d1117ff"):
+        assert legible(bad) == config.DIM
+
+
+def test_every_github_language_colour_becomes_readable():
+    """Sweep the real colours of languages present on this account."""
+    from generator.render import _contrast, legible
+    for raw in ("#04133b", "#663399", "#555555", "#3572A5", "#3178c6",
+                "#b07219", "#e34c26", "#00ADD8", "#89e051", "#f1e05a"):
+        assert _contrast(legible(raw), config.BG) >= config.LANG_MIN_CONTRAST, raw
+
+
+def test_language_name_column_fits_webassembly():
+    assert config.LANG_NAME_WIDTH - 1 >= len("WebAssembly")

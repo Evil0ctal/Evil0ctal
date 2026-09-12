@@ -69,6 +69,51 @@ def wrap_value(value: str, width: int) -> list[str]:
     return lines
 
 
+def _relative_luminance(colour: str) -> float:
+    channels = []
+    for start in (1, 3, 5):
+        value = int(colour[start:start + 2], 16) / 255.0
+        channels.append(value / 12.92 if value <= 0.04045 else ((value + 0.055) / 1.055) ** 2.4)
+    red, green, blue = channels
+    return 0.2126 * red + 0.7152 * green + 0.0722 * blue
+
+
+def _contrast(a: str, b: str) -> float:
+    high, low = sorted((_relative_luminance(a), _relative_luminance(b)), reverse=True)
+    return (high + 0.05) / (low + 0.05)
+
+
+def legible(colour: str, background: str = config.BG) -> str:
+    """Lift a colour until it is readable on the card background.
+
+    GitHub's own language colours are chosen for light UI: WebAssembly is
+    #04133b, which scores 1.05 against this card's #0d1117 and is effectively
+    invisible. CSS and C are barely better. Rather than special-casing those,
+    any colour that misses the contrast floor is blended toward white until it
+    clears it.
+    """
+    if not (len(colour) == 7 and colour.startswith("#")):
+        return config.DIM
+    try:
+        int(colour[1:], 16)
+    except ValueError:
+        return config.DIM
+
+    current = colour
+    for _ in range(int(1 / config.LANG_LIGHTEN_STEP) + 1):
+        if _contrast(current, background) >= config.LANG_MIN_CONTRAST:
+            return current
+        parts = []
+        for start in (1, 3, 5):
+            value = int(current[start:start + 2], 16)
+            parts.append(min(255, round(value + (255 - value) * config.LANG_LIGHTEN_STEP)))
+        nxt = "#%02x%02x%02x" % tuple(parts)
+        if nxt == current:
+            break
+        current = nxt
+    return current
+
+
 def escape(text: str) -> str:
     return (str(text).replace("&", "&amp;").replace("<", "&lt;").replace(">", "&gt;")
             .replace('"', "&quot;").replace("'", "&#39;"))
@@ -209,13 +254,15 @@ def render_info(profile, languages, loc, x: float, y: float, now) -> tuple[str, 
     for language in languages:
         filled = round(language.pct / 100 * config.LANG_BAR_CELLS)
         bar = "█" * filled + "░" * (config.LANG_BAR_CELLS - filled)
-        name = language.name[:config.LANG_NAME_MAX_CHARS]
+        name = language.name[:config.LANG_NAME_WIDTH - 1]
         percent = f" {language.pct:4.1f}%"
-        widths.append(config.INFO_KEY_WIDTH + len(bar) + len(percent))
-        colour = escape(language.colour)  # external data (GraphQL `color` field) — never trust it raw
+        widths.append(config.LANG_NAME_WIDTH + len(bar) + len(percent))
+        # External data (GraphQL `color`), so escape it; and lift it off the
+        # background so dark language colours stay readable.
+        colour = escape(legible(language.colour))
         buffer.append(
             f'<tspan x="{x}" y="{cursor:.1f}">'
-            f'<tspan fill="{colour}">{escape(name):<{config.INFO_KEY_WIDTH}}</tspan>'
+            f'<tspan fill="{colour}">{escape(name):<{config.LANG_NAME_WIDTH}}</tspan>'
             f'<tspan fill="{colour}">{bar}</tspan>'
             f'<tspan fill="{config.FG}">{percent}</tspan></tspan>')
         cursor += config.CELL_H

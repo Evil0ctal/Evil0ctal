@@ -6,8 +6,14 @@ AVATAR_URL = "https://github.com/{user}.png?size={size}"
 AVATAR_FETCH_SIZE = 460
 
 # --- portrait ---
-AVATAR_COLS = 40
-ASCII_RAMP = " .:-=+*#%@"
+AVATAR_COLS = 56
+ASCII_RAMP = " .:-=+*#%@"   # retained for the contribution graph legend only
+# Glyph-matching portrait. Bitmaps are committed (see glyph_bitmaps.json) so the
+# portrait never depends on which monospace font the build host happens to have.
+GLYPH_BITMAP_FILE = "glyph_bitmaps.json"
+GLYPH_CELL = (8, 16)         # sub-sampling resolution per character cell
+GLYPH_STRUCTURE_WEIGHT = 0.45  # 0 = pure tone (a ramp), 1 = pure shape (fits noise)
+GLYPH_WORST_TONE_ERROR = 1.0   # a full-black cell against a full-white glyph  # 0 = pure tone (a ramp), 1 = pure shape (fits noise)
 CHAR_ASPECT = 0.5          # monospace cells are ~2x taller than wide
 AUTOCONTRAST_CUTOFF = 2
 CONTRAST_BOOST = 1.35
@@ -51,7 +57,7 @@ OS_LINE = "Darwin · Linux"
 SHELL_LINE = "zsh · Python 3.13"
 SITES = [("reer.dev", "https://reer.dev/"), ("gods.dev", "https://gods.dev/")]
 EMAIL = "Evil0ctal1985@gmail.com"
-TOP_LANGUAGES = 5
+TOP_LANGUAGES = 8
 LANG_BAR_CELLS = 10
 REPO_COUNT_SUFFIX = "sources"  # GitHub's own term for non-fork repos
 # `contributionsCollection` with no from/to covers the TRAILING TWELVE
@@ -61,7 +67,13 @@ COMMITS_LABEL = "last 12 months"
 # --- info panel layout ---
 INFO_SEPARATOR_WIDTH = 46   # dash count for the "─"*N separator rules
 INFO_KEY_WIDTH = 11         # left-column width for key labels (e.g. "Repos")
-LANG_NAME_MAX_CHARS = 10    # language name truncation, one char short of INFO_KEY_WIDTH
+LANG_NAME_WIDTH = 13        # language-name column; "WebAssembly" is 11 chars and was
+                            # being cut to "WebAssembl" by the old 10-char limit
+# Minimum WCAG contrast a language colour must reach against BG before it is
+# lightened. GitHub's own WebAssembly colour (#04133b) scores 1.05 on this
+# background — invisible. CSS (2.25) and C (2.54) are barely better.
+LANG_MIN_CONTRAST = 4.5
+LANG_LIGHTEN_STEP = 0.08    # fraction blended toward white per attempt
 # Tokens that must never be left dangling at the end of a wrapped value:
 # they introduce the item that follows, so they travel with it to the next
 # line rather than trailing a line on their own.

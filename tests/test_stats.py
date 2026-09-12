@@ -75,11 +75,46 @@ LANG_PAYLOAD = {
 }
 
 
-def test_languages_are_byte_weighted_and_sorted():
+def test_languages_weight_every_repository_equally():
+    """repo1 is 2/3 Python, repo2 is all Python -> (0.667 + 1.0) / 2 = 83.3%."""
     langs = fetch_languages(FakeClient(LANG_PAYLOAD), "someone", top=2)
     assert [l.name for l in langs] == ["Python", "Java"]
-    assert round(langs[0].pct, 1) == 70.0
-    assert round(langs[1].pct, 1) == 30.0
+    assert round(langs[0].pct, 1) == 83.3
+    assert round(langs[1].pct, 1) == 16.7
+
+
+def test_one_huge_repository_cannot_dominate_the_mix():
+    """The regression this weighting exists for.
+
+    A single repo carrying a ~99 MB vendored WebAssembly blob was 89% of all
+    bytes on the real account and rendered the card as "89.2% WebAssembly" for
+    a developer with 22 Python repositories. One repo gets one vote.
+    """
+    payload = {"user": {"repositories": {
+        "pageInfo": {"hasNextPage": False},
+        "nodes": [
+            {"languages": {"edges": [
+                {"size": 99_000_000, "node": {"name": "WebAssembly", "color": "#04133b"}}]}},
+            {"languages": {"edges": [
+                {"size": 5_000, "node": {"name": "Python", "color": "#3572A5"}}]}},
+            {"languages": {"edges": [
+                {"size": 3_000, "node": {"name": "Python", "color": "#3572A5"}}]}},
+        ]}}}
+    langs = fetch_languages(FakeClient(payload), "someone", top=2)
+    assert langs[0].name == "Python", "two small Python repos outvote one huge blob"
+    assert round(langs[0].pct) == 67
+    assert round(langs[1].pct) == 33
+
+
+def test_repositories_with_no_code_are_not_counted():
+    payload = {"user": {"repositories": {
+        "pageInfo": {"hasNextPage": False},
+        "nodes": [
+            {"languages": {"edges": []}},
+            {"languages": {"edges": [{"size": 10, "node": {"name": "Go", "color": "#00ADD8"}}]}},
+        ]}}}
+    langs = fetch_languages(FakeClient(payload), "someone", top=3)
+    assert len(langs) == 1 and round(langs[0].pct) == 100, "an empty repo must not dilute the mix"
 
 
 def test_language_without_colour_falls_back_to_dim():

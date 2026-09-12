@@ -124,22 +124,41 @@ def fetch_profile(client, username: str) -> Profile:
 
 
 def fetch_languages(client, username: str, top: int = config.TOP_LANGUAGES) -> list[Language]:
+    """Language mix with every repository weighting the same.
+
+    Summing raw bytes across repositories lets one outlier decide the answer:
+    on this account a single reverse-engineering repo carries a ~99 MB vendored
+    WebAssembly blob, which is 89% of all bytes and rendered the card as "89.2%
+    WebAssembly" for a developer with 22 Python repositories. The bytes were
+    real; the conclusion was not.
+
+    So each repository's languages are normalised to sum to 1 first, then
+    averaged across repositories. A big repo cannot drown a small one, and a
+    vendored binary is worth exactly one repository's vote.
+    """
     data = client.graphql(LANGUAGE_QUERY, login=username)
     repos = _require(data, "user", "repositories")
     _reject_truncated_listing(repos, "the language mix")
-    totals: collections.Counter = collections.Counter()
+
+    shares: collections.Counter = collections.Counter()
     colours: dict[str, str] = {}
+    counted_repos = 0
     for repo in repos.get("nodes") or []:
-        for edge in (repo.get("languages") or {}).get("edges") or []:
+        edges = (repo.get("languages") or {}).get("edges") or []
+        repo_total = sum(edge["size"] for edge in edges)
+        if not repo_total:
+            continue
+        counted_repos += 1
+        for edge in edges:
             name = edge["node"]["name"]
-            totals[name] += edge["size"]
+            shares[name] += edge["size"] / repo_total
             colours[name] = edge["node"].get("color") or config.DIM
-    grand_total = sum(totals.values())
-    if not grand_total:
+
+    if not counted_repos:
         return []
     return [
-        Language(name=name, pct=size * 100 / grand_total, colour=colours[name])
-        for name, size in totals.most_common(top)
+        Language(name=name, pct=share * 100 / counted_repos, colour=colours[name])
+        for name, share in shares.most_common(top)
     ]
 
 
