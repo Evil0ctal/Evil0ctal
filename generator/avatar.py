@@ -11,7 +11,7 @@ Cell = tuple[str, str]
 
 def fetch_avatar(username: str, size: int = config.AVATAR_FETCH_SIZE) -> Image.Image:
     url = config.AVATAR_URL.format(user=username, size=size)
-    response = requests.get(url, timeout=30)
+    response = requests.get(url, timeout=config.GITHUB_TIMEOUT_SECONDS)
     if response.status_code != 200:
         raise RuntimeError(f"Avatar fetch failed for {username}: HTTP {response.status_code}")
     return Image.open(io.BytesIO(response.content)).convert("RGB")
