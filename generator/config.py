@@ -44,6 +44,11 @@ EMAIL = "Evil0ctal1985@gmail.com"
 TOP_LANGUAGES = 5
 LANG_BAR_CELLS = 10
 
+# --- info panel layout ---
+INFO_SEPARATOR_WIDTH = 46   # dash count for the "─"*N separator rules
+INFO_KEY_WIDTH = 11         # left-column width for key labels (e.g. "Repos")
+LANG_NAME_MAX_CHARS = 10    # language name truncation, one char short of INFO_KEY_WIDTH
+
 # --- contribution graph ---
 CONTRIB_ROWS = 7
 BUCKET_QUANTILES = [0.25, 0.50, 0.75, 0.90]
