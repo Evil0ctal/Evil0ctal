@@ -10,6 +10,10 @@ on:
 permissions:
   contents: write
 
+concurrency:
+  group: build-profile-card
+  cancel-in-progress: false
+
 jobs:
   build:
     runs-on: ubuntu-latest
