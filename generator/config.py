@@ -30,6 +30,7 @@ COLUMN_GAP = 34
 LAYOUT_ADVANCE_W = 9.2
 # Blank rows left between the portrait/info block and the contribution graph.
 GRAPH_GAP_ROWS = 1.0
+SHOW_CONTRIBUTIONS = False   # render the ASCII contribution graph + snake below the panel
 
 # --- palette ---
 BG = "#0d1117"

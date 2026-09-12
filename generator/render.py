@@ -247,16 +247,23 @@ def build_svg(grid, profile, languages, levels, loc, path=None, now=None) -> str
     portrait = render_portrait(grid, portrait_x, body_top)
     info, info_metrics = render_info(profile, languages, loc, info_x, body_top, now)
 
-    from generator.render_contrib import render_contributions  # Task 7
     # The graph starts below whichever column is taller, measured — never a
     # literal row count. A hardcoded 20 used to sit above the info panel's
     # real 22 rows, so the first grid row overprinted the colour swatch.
     portrait_last_baseline = body_top + (len(grid) - 1) * config.CELL_H
     body_last_baseline = max(portrait_last_baseline, info_metrics.last_baseline)
-    graph_y = body_last_baseline + config.CELL_H * (1 + config.GRAPH_GAP_ROWS)
-    graph, graph_h = render_contributions(levels, path, config.PAD, graph_y)
 
-    height = graph_y + graph_h + config.PAD
+    if config.SHOW_CONTRIBUTIONS:
+        from generator.render_contrib import render_contributions
+
+        graph_y = body_last_baseline + config.CELL_H * (1 + config.GRAPH_GAP_ROWS)
+        graph, graph_h = render_contributions(levels, path, config.PAD, graph_y)
+        height = graph_y + graph_h + config.PAD
+    else:
+        # No graph: close the card a gap-row below the taller column's baseline,
+        # so the swatch keeps the same breathing room the graph used to give it.
+        graph = ""
+        height = body_last_baseline + config.CELL_H * config.GRAPH_GAP_ROWS + config.PAD
     width = config.CARD_WIDTH
 
     dots = "".join(

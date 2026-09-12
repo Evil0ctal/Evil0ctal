@@ -218,12 +218,13 @@ def contribution_baselines(svg: str) -> list[float]:
             if element.tag.endswith("text") and "--lv" in (element.get("style") or "")]
 
 
-def test_contribution_grid_starts_below_the_info_panel():
+def test_contribution_grid_starts_below_the_info_panel(monkeypatch):
     """F3: graph_y was `body_top + max(len(grid), 20) * CELL_H + CELL_H`, a
     bare literal duplicating a row count render_info itself owns. The panel
     is really 22+ rows, so the swatch sat at y=437.2 while the grid's first
     row started at y=430.0 and nine cells overprinted it.
     """
+    monkeypatch.setattr(config, "SHOW_CONTRIBUTIONS", True)
     svg = build_svg(GRID, PROFILE, LANGS, LEVELS, LOC, path=PATH, now=NOW)
     _, metrics = render_info(PROFILE, LANGS, LOC, x=info_x(), y=config.BODY_TOP, now=NOW)
     baselines = contribution_baselines(svg)
@@ -237,6 +238,7 @@ def test_contribution_grid_starts_below_the_info_panel():
 def test_adding_an_info_row_pushes_the_graph_down(monkeypatch):
     """The derivation must be live, not a literal that happens to be right
     today: one more language row must move the graph, not collide with it."""
+    monkeypatch.setattr(config, "SHOW_CONTRIBUTIONS", True)
     def graph_top(langs):
         svg = build_svg(GRID, PROFILE, langs, LEVELS, LOC, path=PATH, now=NOW)
         return min(contribution_baselines(svg))
@@ -245,7 +247,8 @@ def test_adding_an_info_row_pushes_the_graph_down(monkeypatch):
     assert graph_top(extra) == graph_top(LANGS) + config.CELL_H
 
 
-def test_card_height_covers_the_contribution_grid():
+def test_card_height_covers_the_contribution_grid(monkeypatch):
+    monkeypatch.setattr(config, "SHOW_CONTRIBUTIONS", True)
     svg = build_svg(GRID, PROFILE, LANGS, LEVELS, LOC, path=PATH, now=NOW)
     root = ET.fromstring(svg)
     height = float(root.get("height"))
@@ -264,3 +267,24 @@ def test_commit_count_is_labelled_last_twelve_months():
 
 def test_commit_label_lives_in_config():
     assert config.COMMITS_LABEL == "last 12 months"
+
+
+def test_contribution_graph_can_be_switched_off(monkeypatch):
+    """With SHOW_CONTRIBUTIONS off the card carries no grid and ends below the panel."""
+    monkeypatch.setattr(config, "SHOW_CONTRIBUTIONS", False)
+    svg = build_svg(GRID, PROFILE, LANGS, LEVELS, LOC, PATH, now=NOW)
+    root = ET.fromstring(svg)
+    assert "animation-delay" not in svg, "no snake animation when the graph is off"
+    assert config.CONTRIB_CELL_CHAR not in svg, "no contribution cells when the graph is off"
+    _, metrics = render_info(PROFILE, LANGS, LOC, 0, config.BODY_TOP, NOW)
+    assert float(root.get("height")) > metrics.last_baseline, "card must still contain the panel"
+
+
+def test_switching_the_graph_off_shortens_the_card(monkeypatch):
+    monkeypatch.setattr(config, "SHOW_CONTRIBUTIONS", True)
+    with_graph = float(ET.fromstring(
+        build_svg(GRID, PROFILE, LANGS, LEVELS, LOC, PATH, now=NOW)).get("height"))
+    monkeypatch.setattr(config, "SHOW_CONTRIBUTIONS", False)
+    without = float(ET.fromstring(
+        build_svg(GRID, PROFILE, LANGS, LEVELS, LOC, PATH, now=NOW)).get("height"))
+    assert without < with_graph
