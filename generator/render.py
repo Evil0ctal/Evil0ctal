@@ -6,7 +6,8 @@ from generator.stats import uptime
 
 
 def escape(text: str) -> str:
-    return (str(text).replace("&", "&amp;").replace("<", "&lt;").replace(">", "&gt;"))
+    return (str(text).replace("&", "&amp;").replace("<", "&lt;").replace(">", "&gt;")
+            .replace('"', "&quot;").replace("'", "&#39;"))
 
 
 def colour_runs(row) -> list[tuple[str, str]]:
@@ -125,10 +126,11 @@ def render_info(profile, languages, loc, x: float, y: float, now) -> str:
         filled = round(language.pct / 100 * config.LANG_BAR_CELLS)
         bar = "█" * filled + "░" * (config.LANG_BAR_CELLS - filled)
         name = language.name[:config.LANG_NAME_MAX_CHARS]
+        colour = escape(language.colour)  # external data (GraphQL `color` field) — never trust it raw
         buffer.append(
             f'<tspan x="{x}" y="{cursor:.1f}">'
-            f'<tspan fill="{language.colour}">{escape(name):<{config.INFO_KEY_WIDTH}}</tspan>'
-            f'<tspan fill="{language.colour}">{bar}</tspan>'
+            f'<tspan fill="{colour}">{escape(name):<{config.INFO_KEY_WIDTH}}</tspan>'
+            f'<tspan fill="{colour}">{bar}</tspan>'
             f'<tspan fill="{config.FG}"> {language.pct:4.1f}%</tspan></tspan>')
         cursor += config.CELL_H
 
@@ -157,18 +159,24 @@ def build_svg(grid, profile, languages, levels, loc, path=None, now=None) -> str
     height = graph_y + graph_h + config.PAD
     width = config.CARD_WIDTH
 
+    dots = "".join(
+        f'<circle cx="{dot_x}" cy="{config.TITLEBAR_DOT_Y}" '
+        f'r="{config.TITLEBAR_DOT_RADIUS}" fill="{colour}"/>'
+        for dot_x, colour in zip(config.TITLEBAR_DOT_X, config.TITLEBAR_DOT_COLORS)
+    )
+    caption = escape(config.USERNAME.lower() + config.TITLEBAR_CAPTION_SUFFIX)
+
     return (
         f'<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" '
         f'width="{width}" height="{height:.0f}" viewBox="0 0 {width} {height:.0f}" '
         f'font-family="ui-monospace,SFMono-Regular,Consolas,Menlo,monospace" '
         f'font-size="{config.FONT_SIZE}px">'
         f'<style>text,tspan{{white-space:pre}}</style>'
-        f'<rect width="{width}" height="{height:.0f}" fill="{config.BG}" rx="12"/>'
-        f'<rect width="{width}" height="{config.TITLEBAR_H}" fill="#00000033" rx="12"/>'
-        f'<circle cx="22" cy="17" r="6" fill="#ff5f57"/>'
-        f'<circle cx="42" cy="17" r="6" fill="#febc2e"/>'
-        f'<circle cx="62" cy="17" r="6" fill="#28c840"/>'
-        f'<text x="{width / 2}" y="22" fill="{config.DIM}" text-anchor="middle" '
-        f'font-size="12px">{escape(config.USERNAME.lower())} — neofetch</text>'
+        f'<rect width="{width}" height="{height:.0f}" fill="{config.BG}" rx="{config.CARD_RADIUS}"/>'
+        f'<rect width="{width}" height="{config.TITLEBAR_H}" fill="{config.TITLEBAR_OVERLAY}" '
+        f'rx="{config.CARD_RADIUS}"/>'
+        f'{dots}'
+        f'<text x="{width / 2}" y="{config.TITLEBAR_CAPTION_Y}" fill="{config.DIM}" '
+        f'text-anchor="middle" font-size="{config.TITLEBAR_FONT_SIZE}px">{caption}</text>'
         f'{portrait}{info}{graph}</svg>'
     )

@@ -49,6 +49,17 @@ INFO_SEPARATOR_WIDTH = 46   # dash count for the "─"*N separator rules
 INFO_KEY_WIDTH = 11         # left-column width for key labels (e.g. "Repos")
 LANG_NAME_MAX_CHARS = 10    # language name truncation, one char short of INFO_KEY_WIDTH
 
+# --- window chrome (card frame + titlebar) ---
+CARD_RADIUS = 12                       # corner radius shared by the card and titlebar rects
+TITLEBAR_OVERLAY = "#00000033"         # translucent dark strip laid over the titlebar
+TITLEBAR_DOT_COLORS = ("#ff5f57", "#febc2e", "#28c840")   # traffic-light dots, left to right
+TITLEBAR_DOT_X = (22, 42, 62)          # x centre of each traffic-light dot, paired with the colours above
+TITLEBAR_DOT_Y = 17                    # y centre shared by all three dots
+TITLEBAR_DOT_RADIUS = 6
+TITLEBAR_CAPTION_Y = 22                # baseline of the centred "user — neofetch" caption
+TITLEBAR_FONT_SIZE = 12                # px, caption font size
+TITLEBAR_CAPTION_SUFFIX = " — neofetch"
+
 # --- contribution graph ---
 CONTRIB_ROWS = 7
 BUCKET_QUANTILES = [0.25, 0.50, 0.75, 0.90]
