@@ -126,12 +126,12 @@
   ]
  },
  "Evil0ctal/Douyin_TikTok_Download_API": {
-  "additions": 195781,
-  "deletions": 9948,
-  "head": "4f0bed8483c35a980315d9c7b3a1d4a1119ad2b2",
-  "last_date": "2026-10-02T00:41:58Z",
+  "additions": 204943,
+  "deletions": 11153,
+  "head": "25e64807838edc6893d15f4d35a15faf0965199b",
+  "last_date": "2026-10-16T14:21:44Z",
   "oids": [
-   "4f0bed8483c35a980315d9c7b3a1d4a1119ad2b2"
+   "25e64807838edc6893d15f4d35a15faf0965199b"
   ]
  },
  "Evil0ctal/Douyin_TikTok_ToolBox": {
@@ -182,7 +182,7 @@
  "Evil0ctal/Evil0ctal": {
   "additions": 4239,
   "deletions": 476,
-  "head": "13e79a924a0f77c52b7724f574a006413186e0d4",
+  "head": "35b470321c81798945f2335c209dc916a56a2398",
   "last_date": "2026-09-12T13:23:40Z",
   "oids": [
    "6524063b278b8582a6e03f2c738e48b1aaaa1eb1"
@@ -506,7 +506,7 @@
  "Evil0ctal/douyin.wtf": {
   "additions": 7656,
   "deletions": 73,
-  "head": "6710c275910e101c0372d196d25c1988f4263ccf",
+  "head": "fe7d17ebed833218f5e6e19ff6630c9ceee94918",
   "last_date": "2026-09-15T03:15:05Z",
   "oids": [
    "40998b8b509421c220d197ad0514bbe938d47c11"
