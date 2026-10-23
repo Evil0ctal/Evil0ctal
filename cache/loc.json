@@ -182,7 +182,7 @@
  "Evil0ctal/Evil0ctal": {
   "additions": 4239,
   "deletions": 476,
-  "head": "1cee41844d886a6df8e9e36b4550ebbe542fbd9f",
+  "head": "876357353500dac2582241653c780770f5c3300a",
   "last_date": "2026-09-12T13:23:40Z",
   "oids": [
    "6524063b278b8582a6e03f2c738e48b1aaaa1eb1"
@@ -521,13 +521,13 @@
    "c67bf7c93b1932902038af1b64a5aa612cc19e1b"
   ]
  },
- "Evil0ctal/php2shell-scan": {
-  "additions": 21,
-  "deletions": 0,
-  "head": "9781b46308f66a6bbb1f1d557a47a829bff25fe3",
-  "last_date": "2026-10-22T03:28:53Z",
+ "Evil0ctal/php2shell-scanner": {
+  "additions": 11189,
+  "deletions": 83,
+  "head": "574365691fb050c2932f15d39e47bf1733b5bf01",
+  "last_date": "2026-10-22T07:00:50Z",
   "oids": [
-   "9781b46308f66a6bbb1f1d557a47a829bff25fe3"
+   "574365691fb050c2932f15d39e47bf1733b5bf01"
   ]
  },
  "Evil0ctal/picx": {
