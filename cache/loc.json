@@ -126,12 +126,12 @@
   ]
  },
  "Evil0ctal/Douyin_TikTok_Download_API": {
-  "additions": 293950,
-  "deletions": 25716,
-  "head": "b5505e3830a2e4b9b8608962f58e96dfe75f23c5",
-  "last_date": "2026-10-27T11:31:55Z",
+  "additions": 296392,
+  "deletions": 26363,
+  "head": "5aa03528d2e974a0de23faf86597b5af3420df55",
+  "last_date": "2026-11-02T07:43:13Z",
   "oids": [
-   "b5505e3830a2e4b9b8608962f58e96dfe75f23c5"
+   "5aa03528d2e974a0de23faf86597b5af3420df55"
   ]
  },
  "Evil0ctal/Douyin_TikTok_ToolBox": {
@@ -182,7 +182,7 @@
  "Evil0ctal/Evil0ctal": {
   "additions": 4239,
   "deletions": 476,
-  "head": "8079cf056f88acfc9ffdd5ae4a5ff3d17b3b8ea0",
+  "head": "400dd92b644b8c9dec024e1f74b45853f7eb5993",
   "last_date": "2026-09-12T13:23:40Z",
   "oids": [
    "6524063b278b8582a6e03f2c738e48b1aaaa1eb1"
@@ -504,12 +504,12 @@
   ]
  },
  "Evil0ctal/douyin.wtf": {
-  "additions": 7860,
-  "deletions": 124,
-  "head": "247018db5be882d7488dd24ec67843d8f04f4141",
-  "last_date": "2026-10-21T11:21:23Z",
+  "additions": 8174,
+  "deletions": 184,
+  "head": "8f70e5baf726bbe27bc701c9cee3d6ca4856eb2b",
+  "last_date": "2026-11-02T06:20:58Z",
   "oids": [
-   "6ca595917afeed217eba1635133b464b44623eda"
+   "399e390ec3e6093a889ca5ea83dc8919ea901a8d"
   ]
  },
  "Evil0ctal/iOS-IPA-Collection": {
